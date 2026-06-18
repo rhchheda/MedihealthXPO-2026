@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — MedihealthXPO 2026</title>
+<style>
+  :root{
+    --navy:#0C2D6B; --navy-deep:#081D49; --gold:#C8960C;
+    --bg:#F2F4F8; --ink:#1A1A1A; --muted:#666; --line:#E4E8EF; --err:#B3261E;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);font-family:'Segoe UI',Arial,Helvetica,sans-serif;color:var(--ink);}
+  .topbar{background:var(--navy);color:#fff;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;}
+  .topbar .brand{font-weight:700;font-size:17px;}
+  .topbar .brand span{color:var(--gold);}
+  .wrap{max-width:620px;margin:0 auto;padding:28px 18px 60px;}
+  .card{background:#fff;border-radius:10px;box-shadow:0 2px 14px rgba(12,45,107,0.08);overflow:hidden;}
+  .card-head{padding:26px 28px 18px;border-bottom:1px solid var(--line);}
+  .eyebrow{color:var(--gold);text-transform:uppercase;font-size:12px;font-weight:700;letter-spacing:1px;margin:0 0 6px;}
+  h1{font-size:22px;margin:0 0 6px;color:var(--navy);}
+  .event-meta{font-size:13.5px;color:var(--muted);line-height:1.6;margin-top:10px;}
+  .event-meta b{color:var(--ink);}
+  .card-body{padding:24px 28px 28px;}
+  label.field-label{display:block;font-size:13px;font-weight:600;color:#333;margin:16px 0 6px;}
+  label.field-label .req{color:var(--err);}
+  input[type=text], input[type=tel], input[type=email], textarea, select{
+    width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:7px;font-size:14px;font-family:inherit;color:var(--ink);background:#fff;
+  }
+  textarea{min-height:65px;resize:vertical;}
+  input:focus, textarea:focus, select:focus{outline:none;border-color:var(--navy);}
+  .submit-btn{width:100%;margin-top:22px;padding:14px;border:none;border-radius:7px;background:var(--navy);color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
+  .submit-btn:disabled{opacity:.55;}
+  .submit-btn:hover:not(:disabled){background:var(--navy-deep);}
+  .footnote{text-align:center;font-size:12px;color:var(--muted);margin-top:20px;}
+  .state{display:none;text-align:center;padding:50px 28px;}
+  .state.show{display:block;}
+  .state-icon{font-size:42px;margin-bottom:10px;}
+  .state h2{color:var(--navy);margin:0 0 8px;font-size:20px;}
+  .state p{color:var(--muted);font-size:14px;line-height:1.6;}
+  .reg-id{display:inline-block;margin-top:10px;background:#F4E3B8;color:#7A5B00;font-weight:700;padding:6px 14px;border-radius:6px;font-size:13px;}
+  .error-msg{color:var(--err);font-size:13px;margin-top:10px;display:none;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">KLE-<span>CTiE</span></div>
+  <div style="font-size:12px;opacity:.85;">MedihealthXPO 2026</div>
+</div>
+
+<div class="wrap">
+  <div class="card">
+
+    <div id="successState" class="state">
+      <div class="state-icon">✅</div>
+      <h2>You're registered!</h2>
+      <p>Thank you for registering for MedihealthXPO 2026. We look forward to having you with us.</p>
+      <div class="reg-id" id="regIdBox"></div>
+    </div>
+
+    <div id="formState">
+      <div class="card-head">
+        <p class="eyebrow">Event Registration</p>
+        <h1>MedihealthXPO 2026</h1>
+        <div class="event-meta">
+          MedTech Innovation Showcase &amp; North Karnataka Incubators Consortium<br>
+          📅 <b>Saturday, 27th June 2026</b> &nbsp;|&nbsp; ⏰ <b>9:30 AM – 2:30 PM</b><br>
+          📍 <b>CTIE Tech Park Building &amp; Old Senate Hall, KLE Technological University, Hubballi</b>
+        </div>
+      </div>
+      <div class="card-body">
+        <label class="field-label">Full name <span class="req">*</span></label>
+        <input type="text" id="name" placeholder="Your full name">
+
+        <label class="field-label">Organization <span class="req">*</span></label>
+        <input type="text" id="organization" placeholder="Company / institution name">
+
+        <label class="field-label">Designation</label>
+        <input type="text" id="designation" placeholder="e.g. CEO, Research Scholar, Program Manager">
+
+        <label class="field-label">I'm attending as <span class="req">*</span></label>
+        <select id="category">
+          <option value="">Select one</option>
+          <option value="Researcher">Researcher / Academic</option>
+          <option value="Investor">Investor</option>
+          <option value="Industry Delegate">Industry Delegate</option>
+          <option value="Incubation Manager">Incubation Manager</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <label class="field-label">Contact number <span class="req">*</span></label>
+        <input type="tel" id="contactNumber" placeholder="10-digit mobile number">
+
+        <label class="field-label">Email <span class="req">*</span></label>
+        <input type="email" id="email" placeholder="you@example.com">
+
+        <label class="field-label">Special requests (optional)</label>
+        <textarea id="specialRequests" placeholder="Accessibility, dietary, or other notes"></textarea>
+
+        <button class="submit-btn" id="submitBtn" onclick="submitRegistration()">Register</button>
+        <div class="error-msg" id="errorMsg"></div>
+        <p class="footnote">Questions? Write to ctie@kletech.ac.in</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+  function showSuccess(regId){
+    document.getElementById('formState').style.display='none';
+    document.getElementById('regIdBox').textContent = 'Registration ID: ' + regId;
+    document.getElementById('successState').classList.add('show');
+  }
+
+  async function submitRegistration(){
+    const name = document.getElementById('name').value.trim();
+    const organization = document.getElementById('organization').value.trim();
+    const category = document.getElementById('category').value;
+    const contactNumber = document.getElementById('contactNumber').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const errorMsg = document.getElementById('errorMsg');
+
+    if(!name || !organization || !category || !contactNumber || !email){
+      errorMsg.textContent = 'Please fill all required fields marked with *.';
+      errorMsg.style.display = 'block';
+      return;
+    }
+    if(!/^\S+@\S+\.\S+$/.test(email)){
+      errorMsg.textContent = 'Please enter a valid email address.';
+      errorMsg.style.display = 'block';
+      return;
+    }
+    errorMsg.style.display = 'none';
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+
+    const payload = {
+      action: 'registerParticipant',
+      name, organization,
+      designation: document.getElementById('designation').value.trim(),
+      category, contactNumber, email,
+      specialRequests: document.getElementById('specialRequests').value.trim()
+    };
+
+    try{
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(data.success){
+        showSuccess(data.registrationId);
+      } else {
+        errorMsg.textContent = data.message || 'Something went wrong. Please try again.';
+        errorMsg.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Register';
+      }
+    } catch(err){
+      errorMsg.textContent = 'Network error. Please try again.';
+      errorMsg.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Register';
+    }
+  }
+</script>
+</body>
+</html>

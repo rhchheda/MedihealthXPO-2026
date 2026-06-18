@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confirm Participation — MedihealthXPO 2026</title>
+<style>
+  :root{
+    --navy:#0C2D6B; --navy-deep:#081D49; --gold:#C8960C; --gold-soft:#F4E3B8;
+    --bg:#F2F4F8; --ink:#1A1A1A; --muted:#666; --line:#E4E8EF; --ok:#1E7B34; --err:#B3261E;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);font-family:'Segoe UI',Arial,Helvetica,sans-serif;color:var(--ink);}
+  .topbar{background:var(--navy);color:#fff;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;}
+  .topbar .brand{font-weight:700;font-size:17px;letter-spacing:.2px;}
+  .topbar .brand span{color:var(--gold);}
+  .wrap{max-width:620px;margin:0 auto;padding:28px 18px 60px;}
+  .card{background:#fff;border-radius:10px;box-shadow:0 2px 14px rgba(12,45,107,0.08);overflow:hidden;}
+  .card-head{padding:26px 28px 18px;border-bottom:1px solid var(--line);}
+  .eyebrow{color:var(--gold);text-transform:uppercase;font-size:12px;font-weight:700;letter-spacing:1px;margin:0 0 6px;}
+  h1{font-size:22px;margin:0 0 6px;color:var(--navy);}
+  .event-meta{font-size:13.5px;color:var(--muted);line-height:1.6;margin-top:10px;}
+  .event-meta b{color:var(--ink);}
+  .card-body{padding:24px 28px 28px;}
+  .greet{font-size:15px;margin:0 0 18px;}
+  .greet b{color:var(--navy);}
+  fieldset{border:none;margin:0 0 20px;padding:0;}
+  legend{font-weight:700;font-size:13.5px;color:var(--navy);margin-bottom:10px;}
+  .choice-row{display:flex;gap:12px;}
+  .choice{flex:1;border:1.5px solid var(--line);border-radius:8px;padding:13px;text-align:center;cursor:pointer;font-weight:600;font-size:14px;transition:.15s;}
+  .choice.selected-yes{border-color:var(--ok);background:#EAF6ED;color:var(--ok);}
+  .choice.selected-no{border-color:var(--err);background:#FBEAEA;color:var(--err);}
+  label.field-label{display:block;font-size:13px;font-weight:600;color:#333;margin:16px 0 6px;}
+  input[type=text], input[type=number], textarea{
+    width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:7px;font-size:14px;font-family:inherit;color:var(--ink);
+  }
+  textarea{min-height:70px;resize:vertical;}
+  input:focus, textarea:focus{outline:none;border-color:var(--navy);}
+  #detailFields{display:none;}
+  .submit-btn{width:100%;margin-top:22px;padding:14px;border:none;border-radius:7px;background:var(--navy);color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
+  .submit-btn:disabled{opacity:.55;cursor:not-allowed;}
+  .submit-btn:hover:not(:disabled){background:var(--navy-deep);}
+  .footnote{text-align:center;font-size:12px;color:var(--muted);margin-top:20px;}
+  .state{display:none;text-align:center;padding:50px 28px;}
+  .state.show{display:block;}
+  .state-icon{font-size:42px;margin-bottom:10px;}
+  .state h2{color:var(--navy);margin:0 0 8px;font-size:20px;}
+  .state p{color:var(--muted);font-size:14px;line-height:1.6;}
+  .error-msg{color:var(--err);font-size:13px;margin-top:10px;display:none;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">KLE-<span>CTiE</span></div>
+  <div style="font-size:12px;opacity:.85;">MedihealthXPO 2026</div>
+</div>
+
+<div class="wrap">
+  <div class="card">
+
+    <div id="loadingState" class="state show">
+      <div class="state-icon">⏳</div>
+      <h2>Loading your invitation…</h2>
+    </div>
+
+    <div id="invalidState" class="state">
+      <div class="state-icon">⚠️</div>
+      <h2>Link not recognized</h2>
+      <p>This confirmation link may have expired or is incorrect. Please reach out to <a href="mailto:ctie@kletech.ac.in">ctie@kletech.ac.in</a> for help.</p>
+    </div>
+
+    <div id="successState" class="state">
+      <div class="state-icon">✅</div>
+      <h2 id="successTitle">Response recorded</h2>
+      <p id="successMsg">Thank you for letting us know. We've recorded your response for MedihealthXPO 2026.</p>
+    </div>
+
+    <div id="formState">
+      <div class="card-head">
+        <p class="eyebrow">Participation Confirmation</p>
+        <h1>MedihealthXPO 2026</h1>
+        <div class="event-meta">
+          MedTech Innovation Showcase &amp; North Karnataka Incubators Consortium<br>
+          📅 <b>Saturday, 27th June 2026</b> &nbsp;|&nbsp; ⏰ <b>9:30 AM – 2:30 PM</b><br>
+          📍 <b>CTIE Tech Park Building &amp; Old Senate Hall, KLE Technological University, Hubballi</b>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="greet">Dear <b id="founderName">—</b>, will <b id="startupName">—</b> be joining us at MedihealthXPO 2026?</p>
+
+        <fieldset>
+          <legend>Your response</legend>
+          <div class="choice-row">
+            <div class="choice" id="btnYes" onclick="selectAttending('Yes')">✓ Yes, we'll attend</div>
+            <div class="choice" id="btnNo" onclick="selectAttending('No')">✗ Not this time</div>
+          </div>
+        </fieldset>
+
+        <div id="detailFields">
+          <label class="field-label">Number of attendees</label>
+          <input type="number" id="numAttendees" min="1" max="10" placeholder="e.g. 2">
+
+          <label class="field-label">Attendee name(s)</label>
+          <input type="text" id="attendeeNames" placeholder="e.g. Founder Name, Co-founder Name">
+
+          <label class="field-label">Showcase requirements</label>
+          <textarea id="showcaseRequirements" placeholder="Table space, power outlet, display screen, product samples, etc."></textarea>
+
+          <label class="field-label">Special requests (optional)</label>
+          <textarea id="specialRequests" placeholder="Any dietary, accessibility, or scheduling notes"></textarea>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="submitResponse()" disabled>Select a response above</button>
+        <div class="error-msg" id="errorMsg"></div>
+        <p class="footnote">Questions? Write to ctie@kletech.ac.in</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+  const token = new URLSearchParams(window.location.search).get('token');
+  let attending = null;
+
+  function show(id){
+    ['loadingState','invalidState','successState','formState'].forEach(s=>{
+      document.getElementById(s).classList.toggle('show', s===id);
+    });
+  }
+
+  function selectAttending(val){
+    attending = val;
+    document.getElementById('btnYes').classList.toggle('selected-yes', val==='Yes');
+    document.getElementById('btnNo').classList.toggle('selected-no', val==='No');
+    document.getElementById('detailFields').style.display = val==='Yes' ? 'block' : 'none';
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = false;
+    btn.textContent = val==='Yes' ? 'Confirm Participation' : 'Submit Response';
+  }
+
+  async function submitResponse(){
+    if(!attending) return;
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    const payload = {
+      action: 'confirmParticipation',
+      token: token,
+      attending: attending,
+      numAttendees: document.getElementById('numAttendees').value,
+      attendeeNames: document.getElementById('attendeeNames').value,
+      showcaseRequirements: document.getElementById('showcaseRequirements').value,
+      specialRequests: document.getElementById('specialRequests').value
+    };
+    try{
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(data.success){
+        document.getElementById('successTitle').textContent = attending==='Yes' ? "You're confirmed! 🎉" : 'Response recorded';
+        document.getElementById('successMsg').textContent = attending==='Yes'
+          ? "Thank you for confirming. We'll be in touch with showcase slot details closer to the event."
+          : "Thanks for letting us know. We hope to see you at a future CTIE event.";
+        show('successState');
+      } else {
+        document.getElementById('errorMsg').textContent = data.message || 'Something went wrong. Please try again.';
+        document.getElementById('errorMsg').style.display='block';
+        btn.disabled = false; btn.textContent = 'Try Again';
+      }
+    } catch(err){
+      document.getElementById('errorMsg').textContent = 'Network error. Please try again.';
+      document.getElementById('errorMsg').style.display='block';
+      btn.disabled = false; btn.textContent = 'Try Again';
+    }
+  }
+
+  async function init(){
+    if(!token){ show('invalidState'); return; }
+    try{
+      const res = await fetch(`${API_URL}?action=getStartup&token=${encodeURIComponent(token)}`);
+      const data = await res.json();
+      if(!data.success){ show('invalidState'); return; }
+      document.getElementById('founderName').textContent = data.data.founderName;
+      document.getElementById('startupName').textContent = data.data.startupName;
+      if(data.data.alreadyConfirmed){
+        document.getElementById('successTitle').textContent = 'Already responded';
+        document.getElementById('successMsg').textContent = `We have your response on file (${data.data.status}). Need to change it? Contact ctie@kletech.ac.in.`;
+        show('successState');
+      } else {
+        show('formState');
+      }
+    } catch(err){
+      show('invalidState');
+    }
+  }
+  init();
+</script>
+</body>
+</html>

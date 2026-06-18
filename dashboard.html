@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — MedihealthXPO 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --navy:#0C2D6B; --navy-deep:#081D49; --gold:#C8960C;
+    --bg:#F2F4F8; --ink:#1A1A1A; --muted:#666; --line:#E4E8EF;
+    --ok:#1E7B34; --err:#B3261E; --warn:#B45F06;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);font-family:'Segoe UI',Arial,Helvetica,sans-serif;color:var(--ink);}
+  .topbar{background:var(--navy);color:#fff;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;}
+  .topbar .brand{font-weight:700;font-size:17px;}
+  .topbar .brand span{color:var(--gold);}
+  .wrap{max-width:1040px;margin:0 auto;padding:28px 18px 60px;}
+
+  .gate{max-width:380px;margin:80px auto;background:#fff;border-radius:10px;box-shadow:0 2px 14px rgba(12,45,107,0.08);padding:32px;text-align:center;}
+  .gate h2{color:var(--navy);margin-top:0;}
+  .gate input{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:7px;font-size:14px;margin:14px 0;}
+  .gate button{width:100%;padding:12px;border:none;border-radius:7px;background:var(--navy);color:#fff;font-weight:700;font-size:14px;cursor:pointer;}
+  .gate .err{color:var(--err);font-size:13px;margin-top:8px;display:none;}
+
+  #dashboard{display:none;}
+  h1.title{color:var(--navy);font-size:22px;margin:0 0 4px;}
+  .subtitle{color:var(--muted);font-size:13.5px;margin:0 0 24px;}
+
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px;}
+  .kpi{background:#fff;border-radius:9px;padding:18px;box-shadow:0 2px 10px rgba(12,45,107,0.06);}
+  .kpi .num{font-size:26px;font-weight:800;color:var(--navy);}
+  .kpi .label{font-size:12.5px;color:var(--muted);margin-top:4px;}
+  .kpi.confirmed .num{color:var(--ok);}
+  .kpi.declined .num{color:var(--err);}
+  .kpi.pending .num{color:var(--warn);}
+
+  .charts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:28px;}
+  @media(max-width:720px){.charts{grid-template-columns:1fr;}}
+  .chart-card{background:#fff;border-radius:9px;padding:18px;box-shadow:0 2px 10px rgba(12,45,107,0.06);}
+  .chart-card h3{margin:0 0 14px;font-size:14px;color:var(--navy);}
+
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:9px;overflow:hidden;box-shadow:0 2px 10px rgba(12,45,107,0.06);}
+  th,td{padding:10px 14px;font-size:13px;text-align:left;border-bottom:1px solid var(--line);}
+  th{background:var(--navy);color:#fff;font-weight:600;}
+  .badge{padding:3px 9px;border-radius:12px;font-size:11.5px;font-weight:700;}
+  .badge.Confirmed{background:#EAF6ED;color:var(--ok);}
+  .badge.Declined{background:#FBEAEA;color:var(--err);}
+  .badge.Sent{background:#FFF6E0;color:var(--warn);}
+  .badge.Opened{background:#FCE5CD;color:var(--warn);}
+  .badge.Pending{background:#EFEFEF;color:#666;}
+  .refresh{font-size:12px;color:var(--muted);margin-top:18px;text-align:right;}
+  .refresh button{background:none;border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer;color:var(--navy);font-weight:600;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">KLE-<span>CTiE</span></div>
+  <div style="font-size:12px;opacity:.85;">MedihealthXPO 2026 — Analytics</div>
+</div>
+
+<div class="wrap">
+  <div class="gate" id="gate">
+    <h2>Dashboard Access</h2>
+    <p style="color:var(--muted);font-size:13px;">Enter the dashboard password to view live event analytics.</p>
+    <input type="password" id="pwd" placeholder="Password" onkeydown="if(event.key==='Enter')unlock()">
+    <button onclick="unlock()">View Dashboard</button>
+    <div class="err" id="gateErr">Incorrect password. Try again.</div>
+  </div>
+
+  <div id="dashboard">
+    <h1 class="title">MedihealthXPO 2026 — Live Dashboard</h1>
+    <p class="subtitle">Startup invitations &amp; general registrations, updated in real time from the response sheet.</p>
+
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="charts">
+      <div class="chart-card"><h3>Startup Response Funnel</h3><canvas id="funnelChart"></canvas></div>
+      <div class="chart-card"><h3>General Registrations by Category</h3><canvas id="categoryChart"></canvas></div>
+    </div>
+
+    <h3 style="color:var(--navy);font-size:14px;">Startup Responses</h3>
+    <table id="startupTable"><thead><tr><th>Startup</th><th>Status</th><th>Attendees</th></tr></thead><tbody></tbody></table>
+
+    <div class="refresh"><button onclick="loadData()">↻ Refresh</button></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+  let pwdValue = '';
+
+  async function unlock(){
+    const pwd = document.getElementById('pwd').value;
+    const res = await fetch(`${API_URL}?action=dashboard&password=${encodeURIComponent(pwd)}`);
+    const data = await res.json();
+    if(data.success){
+      pwdValue = pwd;
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      renderDashboard(data.data);
+    } else {
+      document.getElementById('gateErr').style.display = 'block';
+    }
+  }
+
+  async function loadData(){
+    const res = await fetch(`${API_URL}?action=dashboard&password=${encodeURIComponent(pwdValue)}`);
+    const data = await res.json();
+    if(data.success) renderDashboard(data.data);
+  }
+
+  let funnelChart, categoryChart;
+
+  function renderDashboard(d){
+    const kpis = [
+      {label:'Total Invited', value:d.totalInvited, cls:''},
+      {label:'Emails Sent', value:d.sent, cls:''},
+      {label:'Opened', value:d.opened, cls:''},
+      {label:'Confirmed', value:d.confirmed, cls:'confirmed'},
+      {label:'Declined', value:d.declined, cls:'declined'},
+      {label:'Pending Response', value:d.pending, cls:'pending'},
+      {label:'Attendees Expected', value:d.totalAttendeesExpected, cls:''},
+      {label:'General Registrations', value:d.totalRegistrations, cls:''}
+    ];
+    document.getElementById('kpiGrid').innerHTML = kpis.map(k =>
+      `<div class="kpi ${k.cls}"><div class="num">${k.value}</div><div class="label">${k.label}</div></div>`
+    ).join('');
+
+    const fCtx = document.getElementById('funnelChart');
+    if(funnelChart) funnelChart.destroy();
+    funnelChart = new Chart(fCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Invited','Sent','Opened','Confirmed','Declined'],
+        datasets: [{ data: [d.totalInvited,d.sent,d.opened,d.confirmed,d.declined],
+          backgroundColor: ['#0C2D6B','#1F4E9C','#C8960C','#1E7B34','#B3261E'], borderRadius:5 }]
+      },
+      options: { plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{precision:0}}} }
+    });
+
+    const cats = d.categoryCounts || {};
+    const cCtx = document.getElementById('categoryChart');
+    if(categoryChart) categoryChart.destroy();
+    categoryChart = new Chart(cCtx, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(cats),
+        datasets: [{ data: Object.values(cats),
+          backgroundColor: ['#0C2D6B','#C8960C','#1E7B34','#B45F06','#7E57C2','#888'] }]
+      },
+      options: { plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}}} }
+    });
+
+    const tbody = document.querySelector('#startupTable tbody');
+    tbody.innerHTML = (d.startups||[]).map(s =>
+      `<tr><td>${s.name}</td><td><span class="badge ${s.status}">${s.status}</span></td><td>${s.attendees || '—'}</td></tr>`
+    ).join('');
+  }
+</script>
+</body>
+</html>
